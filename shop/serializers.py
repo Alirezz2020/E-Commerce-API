@@ -20,14 +20,18 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 # Product serializer including category and reviews.
 class ProductSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
-    category_id = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), source='category',
-                                                     write_only=True, required=False)
-    reviews = ReviewSerializer(many=True, read_only=True)
+    category = serializers.StringRelatedField(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), source='category', write_only=True, required=False)
+    reviews = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False)
 
     class Meta:
         model = Product
-        fields = ['id', 'category', 'category_id', 'name', 'description', 'price', 'inventory', 'created_at', 'reviews']
+        fields = ['id', 'category', 'category_id', 'name', 'description', 'price', 'inventory', 'image', 'created_at', 'reviews']
+
+    def get_reviews(self, obj):
+        # If needed, you can further detail reviews here.
+        return []  # placeholder
 
     def validate_price(self, value):
         if value < 0:

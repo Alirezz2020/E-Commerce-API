@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.utils.html import format_html
+
 from .models import Category, Product, Review, Order, OrderItem
 
 class CategoryAdmin(admin.ModelAdmin):
@@ -6,9 +8,16 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'category', 'price', 'inventory', 'created_at')
+    list_display = ('id', 'name', 'category', 'price', 'inventory', 'created_at', 'product_image')
     search_fields = ('name', 'description')
     list_filter = ('category', 'created_at')
+    readonly_fields = ('product_image',)
+
+    def product_image(self, obj):
+        if obj.image:
+            return format_html('<img src="{}" width="100" height="100" />', obj.image.url)
+        return "No Image"
+    product_image.short_description = "Image Preview"
 
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ('id', 'product', 'user', 'rating', 'created_at')

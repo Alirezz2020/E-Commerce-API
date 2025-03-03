@@ -3,5 +3,60 @@
 {% block content %}
   <h1>Welcome to the Ecommerce Site</h1>
   <p>Your one-stop shop for amazing products.</p>
-  <a href="/api/products/">Browse Products</a>
+
+  <!-- Search and Filter Form -->
+  <form method="get" action="">
+    <input type="text" name="q" placeholder="Search products..." value="{{ search_query }}">
+    <select name="category">
+      <option value="">All Categories</option>
+      {% for category in categories %}
+        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+          {{ category.name }}
+        </option>
+      {% endfor %}
+    </select>
+    <select name="ordering">
+      <option value="-created_at" {% if ordering == "-created_at" %}selected{% endif %}>Newest</option>
+      <option value="created_at" {% if ordering == "created_at" %}selected{% endif %}>Oldest</option>
+      <option value="price" {% if ordering == "price" %}selected{% endif %}>Price: Low to High</option>
+      <option value="-price" {% if ordering == "-price" %}selected{% endif %}>Price: High to Low</option>
+    </select>
+    <button type="submit">Search</button>
+  </form>
+
+  <!-- Products List -->
+  <div class="products">
+    {% for product in products %}
+      <div class="product">
+        <h2>{{ product.name }}</h2>
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+          <p>No image available.</p>
+        {% endif %}
+        <p>{{ product.description }}</p>
+        <p>Price: ${{ product.price }}</p>
+        <p>In Stock: {{ product.inventory }}</p>
+      </div>
+    {% empty %}
+      <p>No products available.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination">
+    <span class="step-links">
+      {% if products.has_previous %}
+        <a href="?q={{ search_query }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if ordering %}&ordering={{ ordering }}{% endif %}&page={{ products.previous_page_number }}">Previous</a>
+      {% endif %}
+
+      <span class="current">
+        Page {{ products.number }} of {{ products.paginator.num_pages }}.
+      </span>
+
+      {% if products.has_next %}
+        <a href="?q={{ search_query }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if ordering %}&ordering={{ ordering }}{% endif %}&page={{ products.next_page_number }}">Next</a>
+      {% endif %}
+    </span>
+  </div>
 {% endblock %}
